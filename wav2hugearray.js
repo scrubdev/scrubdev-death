@@ -29,3 +29,5 @@ for (let i = 0; i < audioData.length; ++i) {
 }
 
 fs.writeFileSync(outputFile, output.join(","));
+console.log("Written to: " + outputFile);
+console.log("Overall array length written: " + output.length);
