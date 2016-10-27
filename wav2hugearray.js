@@ -5,6 +5,7 @@
 
 const fs = require("fs");
 
+const AMPLIFY_RATE = 23;
 const inputFile = "./input.wav";
 const outputFile = "./outputarray";
 
@@ -16,6 +17,9 @@ if (!isWav)
 const channels = inputWavBuffer.slice(22, 24).readInt16LE(0);
 if (channels > 1)
     throw new TypeError("Must be mono track");
+const bitdepth = inputWavBuffer.slice(34, 36).readInt16LE(0);
+if (bitdepth !== 8)
+    throw new TypeError("Bit depth not 8-bit");
 
 // get the actual audio data and sample rate
 // unused -- const sampleRate = inputWavBuffer.slice(24, 28).readInt32LE(0); // eg 44100
@@ -28,6 +32,17 @@ for (let i = 0; i < audioData.length; ++i) {
     output.push(data);
 }
 
+let ampwarn = 0;
+output = output.map(i => {
+    let a = i * AMPLIFY_RATE;
+    if (a > 4096) {
+        a = 4096; // max clamp 4096
+        ++ampwarn;
+    }
+});
+
 fs.writeFileSync(outputFile, output.join(","));
 console.log("Written to: " + outputFile);
 console.log("Overall array length written: " + output.length);
+if (ampwarn > 0)
+    console.log(`WARN: clipped ${ampwarn} during amplification.`);
