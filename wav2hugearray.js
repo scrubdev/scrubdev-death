@@ -39,6 +39,7 @@ output = output.map(i => {
         a = 4096; // max clamp 4096
         ++ampwarn;
     }
+    return a;
 });
 
 fs.writeFileSync(outputFile, output.join(","));
